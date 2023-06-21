@@ -56,14 +56,14 @@ def get_inputs(
             print(key, ": ", turbine_config[key])
 
     ############## provide custom layout for ORBIT and FLORIS if desired
-    
+
     if plant_config["plant"]["layout"] == "custom":
         # generate ORBIT config from floris layout
         for (i, x) in enumerate(floris_config["farm"]["layout_x"]):
             floris_config["farm"]["layout_x"][i] = x + 400
-        
+
         layout_config, layout_data_location = convert_layout_from_floris_for_orbit(floris_config["farm"]["layout_x"], floris_config["farm"]["layout_y"], save_config=True)
-        
+
         # update plant_config with custom layout
         # plant_config = orbit.core.library.extract_library_data(plant_config, additional_keys=layout_config)
         plant_config["array_system_design"]["location_data"] = layout_data_location
@@ -106,7 +106,8 @@ def get_inputs(
             savedir = "figures/"
             if not os.path.exists(savedir):
                 os.mkdir(savedir)
-            plt.savefig("average_wind_speed.png", bbox_inches="tight")
+            plt.savefig(os.path.join(savedir, "average_wind_speed.png"),
+                        bbox_inches="tight")
     print("\n")
 
     ############## return all inputs
@@ -114,7 +115,7 @@ def get_inputs(
     return plant_config, turbine_config, wind_resource, floris_config
 
 def convert_layout_from_floris_for_orbit(turbine_x, turbine_y, save_config=False):
-    
+
     turbine_x_km = (np.array(turbine_x)*1E-3).tolist()
     turbine_y_km = (np.array(turbine_y)*1E-3).tolist()
 
@@ -136,12 +137,12 @@ def convert_layout_from_floris_for_orbit(turbine_x, turbine_y, save_config=False
         if turbine_x[i] - 400 == 0:
             string_counter += 1
             order_counter = 0
-        
+
         turbine_dict["order"][i] = order_counter
         turbine_dict["string"][i] = string_counter
 
         order_counter += 1
-    
+
     # initialize dict with substation information
     substation_dict = {
                 'id': 'OSS',
@@ -154,7 +155,7 @@ def convert_layout_from_floris_for_orbit(turbine_x, turbine_y, save_config=False
                 'cable_length': "",
                 'bury_speed': ""
                 }
-    
+
     # combine turbine and substation dicts
     for key in turbine_dict.keys():
         # turbine_dict[key].append(substation_dict[key])
@@ -169,7 +170,7 @@ def convert_layout_from_floris_for_orbit(turbine_x, turbine_y, save_config=False
             os.makedirs(save_location)
         # create pandas data frame
         df = pd.DataFrame.from_dict(turbine_dict)
-        
+
         # df.drop("index")
         df.set_index("id")
 
@@ -717,7 +718,7 @@ def visualize_plant(
         )
         ax[1, 0].add_patch(h2_storage_patch)
     elif design_scenario["h2_storage_location"] == "turbine":
-    
+
         if plant_config["h2_storage"]["type"] == "turbine":
             h2_storage_patch = patches.Circle(
                 (turbine_x[0], turbine_y[0]),

@@ -49,6 +49,10 @@ def setup_hopp(
                 orbit_project.phases["ArraySystemDesign"].turbines_y.flatten() * 1e3
             )  # ORBIT gives coordinates in km
 
+            floris_config["farm"]["layout_x"] = [x for x in floris_config["farm"]["layout_x"] if (x == x)]
+            floris_config["farm"]["layout_y"] = [y for y in floris_config["farm"]["layout_y"] if (y == y)]
+            # pop off any nans if either of the layout vars are nan
+
             # remove things from turbine_config file that can't be used in FLORIS and set the turbine info in the floris config file
             floris_config["farm"]["turbine_type"] = [
                 {
@@ -65,7 +69,7 @@ def setup_hopp(
                 }
             ]
 
-            
+
             hopp_technologies["wind"] = {
                 "num_turbines": plant_config["plant"]["num_turbines"],
                 "turbine_rating_kw": turbine_config["turbine_rating"] * 1000,
@@ -85,7 +89,7 @@ def setup_hopp(
                 }
         else:
             raise(ValueError("Wind model '%s' not implemented. Please choose one of ['floris', 'sam']") % (plant_config["wind"]["performance_model"]))
-    
+
     if plant_config["pv"]["flag"]:
         hopp_technologies["pv"] = {"system_capacity_kw": plant_config["pv"]["system_capacity_kw"]}
     if plant_config["battery"]["flag"]:
